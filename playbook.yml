@@ -1,0 +1,80 @@
+---
+- hosts: all
+
+  vars_files:
+    - vars-env/main.yml
+
+  vars:
+    use_become: "{{ ansible_os_family != 'Ubuntu' }}"
+
+    is_server: "{{ 'server' in ansible_run_tags }}"
+    is_workstation: "{{ 'debug' in ansible_run_tags }}"
+
+  pre_tasks: # Add this section
+    - name: Update package lists
+      become: "{{ use_become }}"
+      ansible.builtin.apt:
+        update_cache: yes
+      tags: always
+
+    - name: Fix broken dependencies
+      become: "{{ use_become }}"
+      command: apt-get install -f
+      tags: always
+
+  roles:
+    - role: geerlingguy.php
+      become: "{{ use_become }}"
+      state: present
+      tags: always
+      when: is_server or is_workstation
+
+    - role: geerlingguy.mysql
+      become: "{{ use_become }}"
+      tags: always
+      state: present
+      when: is_server or is_workstation
+
+  post_tasks:
+    - name: Output host vars
+      debug:
+        var: hostvars
+      tags: debug
+
+    - name: Output main vars
+      debug:
+        var: packages
+      tags: debug
+
+    - name: Output is_server
+      debug:
+        var: is_server
+      tags: debug
+
+    - name: Install packages for common role
+      become: "{{ use_become }}"
+      ansible.builtin.package:
+        name: "{{ packages.common }}"
+        state: present
+      tags: always
+
+    - name: Install packages for server role
+      become: "{{ use_become }}"
+      ansible.builtin.package:
+        name: "{{ packages.server }}"
+        state: present
+      tags: server
+
+    - name: Install packages for workstation role
+      become: "{{ use_become }}"
+      ansible.builtin.package:
+        name: "{{ packages.workstation }}"
+        state: present
+      tags: workstation
+
+    - name: Install packages for friend role
+      become: "{{ use_become }}"
+      ansible.builtin.package:
+        name: "{{ packages.friend }}"
+        state: present
+      tags: friend
