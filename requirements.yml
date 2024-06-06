@@ -7,3 +7,4 @@ roles:
     version: 5.0.1
   - name: geerlingguy.mysql
     version: 4.3.4
+

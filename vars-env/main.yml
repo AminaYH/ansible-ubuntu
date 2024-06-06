@@ -55,3 +55,4 @@ mysql_users:
     host: "%"
     password: Str0n9P@ssw0rd:)
     priv: "databaseMs.*:ALL"
+
