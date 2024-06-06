@@ -2,4 +2,3 @@
 172.32.20.241
 172.32.20.231
 localhost ansible_connection=local
-

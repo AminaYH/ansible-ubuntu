@@ -78,4 +78,3 @@
         name: "{{ packages.friend }}"
         state: present
       tags: friend
-
